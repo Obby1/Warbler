@@ -308,6 +308,10 @@ nav + .container {
   background-color: #e6ecf0;
 }
 
+.alert {
+  z-index:100;
+}
+
 #sidebar-username {
   margin-top: 30px;
   font-size: 21px;
