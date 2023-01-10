@@ -1,0 +1,55 @@
+In show.html template, fixed / in ... class="message-link"/>
+old:           <a href="/messages/{{ message.id }}" class="message-link"/>
+new: 
+
+users/detail.html with div id = warbler-hero class="full width" is the banner but no banner image is linked. Updated to show banner image.
+old: <div id="warbler-hero" class="full-width"></div>
+new: <div id="warbler-hero" class="full-width"> 
+  <img src="{{ user.header_image_url }}" alt="Header Image for {{ user.username }}" id="profile-header-img">
+</div>
+
+Under style.css, the .full-width div wasn't displaying a banner type image properly.
+old: .full-width {
+  width: 100vw;
+  margin: 0 -50vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+}
+new: .full-width {
+  width: 100vw;
+  height: 100%; /* added to maintain aspect ratio */
+  max-height: 30vh; /* added to limit the height */
+  object-fit: cover; /* added to fill the div with image */
+  margin: 0 -50vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+}
+------------------
+Old warbler hero: #warbler-hero {
+  height: 360px;
+  margin-top: -16px;
+  opacity: 0.7;
+  background-size: cover;
+  background-position: top center;
+}
+new: #warbler-hero {
+  height: 30vh;
+  margin-top: -16px;
+  opacity: 0.7;
+  background-size: cover;
+  background-position: top center;
+}
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
+------------------
