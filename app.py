@@ -33,9 +33,10 @@ connect_db(app)
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
-
+    # left below as get request (not get or 404) since we want g.user to return None 
+    #   if no session of current user
     if CURR_USER_KEY in session:
-        g.user = User.query.get_or_404(session[CURR_USER_KEY])
+        g.user = User.query.get(session[CURR_USER_KEY])
 
     else:
         g.user = None
@@ -157,6 +158,17 @@ def users_show(user_id):
     return render_template('users/show.html', user=user, messages=messages)
 
 
+# @app.route('/users/<int:user_id>/following')
+# def show_following(user_id):
+#     """Show list of people this user is following."""
+
+#     if not g.user:
+#         flash("Access unauthorized.", "danger")
+#         return redirect("/")
+
+#     user = User.query.get_or_404(user_id)
+#     return render_template('users/following.html', user=user)
+
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
@@ -165,8 +177,10 @@ def show_following(user_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user)
+    user = User.query.filter_by(id=user_id).first()
+    following = user.following
+    return render_template('users/following.html', user=user, following=following)
+
 
 
 @app.route('/users/<int:user_id>/followers')
@@ -178,7 +192,7 @@ def users_followers(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
+    return render_template('users/followers.html', followed_user=user.following, user=user)
 
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
@@ -280,7 +294,7 @@ def delete_user():
 
     db.session.delete(g.user)
     db.session.commit()
-
+    flash("User and User Warbles Deleted", "danger")
     return redirect("/signup")
 
 
@@ -314,6 +328,10 @@ def messages_add():
 @app.route('/messages/<int:message_id>', methods=["GET"])
 def messages_show(message_id):
     """Show a message."""
+    # new - needs commit with comments
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=msg)
@@ -328,6 +346,12 @@ def messages_destroy(message_id):
         return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
+
+    if msg.user_id != g.user.id:
+        # if message owner's user id is not the same as logged in user's user id
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     db.session.delete(msg)
     db.session.commit()
 
@@ -366,7 +390,7 @@ def homepage():
 @app.route('/users/add_like/<int:message_id>', methods=['POST'])
 def add_like(message_id):
         if not g.user:
-            flash("You must be logged in to like a warble.", "danger")
+            flash("Access unauthorized. You must be logged in to like a warble.", "danger")
             return redirect("/login")
         message = Message.query.get_or_404(message_id)
         #check if user already like the message
@@ -383,6 +407,7 @@ def add_like(message_id):
         # flash("You have unliked the warble.", "success")
         db.session.commit()
         return redirect(f"/messages/{message_id}")
+
 
 @app.route('/users/<int:user_id>/likes', methods=['GET'])
 def show_likes(user_id):
@@ -447,3 +472,10 @@ def add_header(req):
     req.headers["Expires"] = "0"
     req.headers['Cache-Control'] = 'public, max-age=0'
     return req
+
+
+# To Do:
+# If following no one, display all warbles OR separate tab for viewing all warbles vs viewing
+#   warbles from people you follow
+# Change search to include user's and messages as well
+# Change add_like route to be neutral since it's used for adding and removing likes

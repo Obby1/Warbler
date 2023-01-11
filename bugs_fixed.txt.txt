@@ -42,10 +42,21 @@ new: #warbler-hero {
   background-position: top center;
 }
 ------------------
+messages CSS is hiding the .alert flash message.
+added: 
+.alert {
+  z-index:100;
+}
 ------------------
+fixed user profile to include likes and added proper logic to display likes on user details page
 ------------------
+fixed home.html: <a href="/messages/{{ msg.id  }}" class="message-link"/>
+to:             <a href="/messages/{{ msg.id  }}" class="message-link">
+              </a>
 ------------------
+modified all get routes to get or 404
 ------------------
+modified delete user route to delete all messages user made before deleting user to avoid foreign key constraint violations
 ------------------
 ------------------
 ------------------
