@@ -372,8 +372,31 @@ def add_like(message_id):
             like = Likes(user_id = g.user.id, message_id= message_id)
             db.session.add(like)
             flash("You have liked the warble", "success")
+        # flash("You have unliked the warble.", "success")
         db.session.commit()
         return redirect(f"/messages/{message_id}")
+
+@app.route('/users/<int:user_id>/likes', methods=['GET'])
+def show_likes(user_id):
+    """show messages user has liked"""
+    # Get the user
+    user = User.query.filter_by(id=user_id).first()
+
+    # Get the list of messages the user has liked
+    messages = user.likes
+    return render_template('messages/likes.html', user=user, likes=messages)
+    # change above route to only display messages that are liked, reference code below
+    # if g.user:
+    #     followed_users = [user.id for user in g.user.following]
+    #     followed_users.append(g.user.id)
+    #     messages = (Message
+    #                 .query
+    #                 .filter(Message.user_id.in_(followed_users))
+    #                 .order_by(Message.timestamp.desc())
+    #                 .limit(100)
+    #                 .all())
+    #     return render_template('home.html', messages=messages)
+
 # @app.route('/warbles/<int:warble_id>/like', methods=['POST'])
 # def like_warble(warble_id):
 #     if not g.user:
