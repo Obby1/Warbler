@@ -121,8 +121,9 @@ def logout():
     return redirect(url_for("login"))
 
 
-##############################################################################
-# General user routes:
+########################
+# General user routes:###
+#########################
 
 @app.route('/users')
 def list_users():
@@ -157,17 +158,6 @@ def users_show(user_id):
                 .all())
     return render_template('users/show.html', user=user, messages=messages)
 
-
-# @app.route('/users/<int:user_id>/following')
-# def show_following(user_id):
-#     """Show list of people this user is following."""
-
-#     if not g.user:
-#         flash("Access unauthorized.", "danger")
-#         return redirect("/")
-
-#     user = User.query.get_or_404(user_id)
-#     return render_template('users/following.html', user=user)
 
 @app.route('/users/<int:user_id>/following')
 def show_following(user_id):
@@ -225,27 +215,6 @@ def stop_following(follow_id):
     return redirect(f"/users/{g.user.id}/following")
 
 
-# @app.route('/users/profile', methods=["GET", "POST"])
-# def profile():
-#     """Update profile for current user."""
-#     user_id = g.user.id
-#     user = User.query.get_or_404(user_id)
-#     if not g.user:
-#         flash("Access unauthorized.", "danger")
-#         return redirect("/")
-#     form = ProfileForm()
-#     if form.validate_on_submit():
-#         # Update the user's information in the database
-#         g.user.username = form.username.data
-#         g.user.email = form.email.data
-#         g.user.image_url = form.image_url.data
-#         g.user.header_image_url = form.header_image_url.data
-#         g.user.bio = form.bio.data
-#         db.session.commit()
-#         flash("Profile updated!", "success")
-#         return redirect(f"/users/{g.user.id}")
-#     return render_template("users/edit.html", form=form, form_type="Edit", user=user)
-
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
@@ -273,8 +242,6 @@ def profile():
 
 
 
-
-
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
     """Delete user and related messages."""
@@ -299,8 +266,9 @@ def delete_user():
 
 
 
-##############################################################################
-# Messages routes:
+###################
+# Messages routes:#
+###################
 
 @app.route('/messages/new', methods=["GET", "POST"])
 def messages_add():
@@ -358,8 +326,9 @@ def messages_destroy(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
-##############################################################################
-# Homepage and error pages
+############################
+# Homepage and error pages#
+###########################
 
 
 @app.route('/')
@@ -385,8 +354,9 @@ def homepage():
         return render_template('home-anon.html')
 
 
-##############################################################################
-# Like routes:
+################
+# Like routes:##
+################
 @app.route('/users/add_like/<int:message_id>', methods=['POST'])
 def add_like(message_id):
         if not g.user:
@@ -418,40 +388,6 @@ def show_likes(user_id):
     # Get the list of messages the user has liked
     messages = user.likes
     return render_template('messages/likes.html', user=user, likes=messages)
-    # change above route to only display messages that are liked, reference code below
-    # if g.user:
-    #     followed_users = [user.id for user in g.user.following]
-    #     followed_users.append(g.user.id)
-    #     messages = (Message
-    #                 .query
-    #                 .filter(Message.user_id.in_(followed_users))
-    #                 .order_by(Message.timestamp.desc())
-    #                 .limit(100)
-    #                 .all())
-    #     return render_template('home.html', messages=messages)
-
-# @app.route('/warbles/<int:warble_id>/like', methods=['POST'])
-# def like_warble(warble_id):
-#     if not g.user:
-#         flash("You must be logged in to like a warble.", "danger")
-#         return redirect("/login")
-
-#     warble = Message.query.get_or_404(warble_id)
-
-#     # check if the user has already liked the warble
-#     existing_like = Likes.query.filter_by(user_id=g.user.id, warble_id=warble_id).first()
-#     if existing_like:
-#         # if the warble has already been liked, remove the like
-#         db.session.delete(existing_like)
-#         flash("You have unliked the warble.", "success")
-#     else:
-#         # if the warble has not been liked yet, create a new like
-#         like = Likes(user_id=g.user.id, warble_id=warble_id)
-#         db.session.add(like)
-#         flash("You have liked the warble.", "success")
-#     db.session.commit()
-
-#     return redirect(f"/warbles/{warble_id}")
 
 
 
@@ -479,3 +415,78 @@ def add_header(req):
 #   warbles from people you follow
 # Change search to include user's and messages as well
 # Change add_like route to be neutral since it's used for adding and removing likes
+
+
+# Further Study
+# There are lots of areas of further study.
+
+# You won’t have time to do all of these. Instead, pick those that seem most interesting to you.
+
+# Custom 404 Page
+# Learn how to add a custom 404 page, and make one.
+
+# Add AJAX
+# There are two areas where AJAX would really benefit this site:
+
+# When you like/unlike a warble, you shouldn’t have to refresh the page
+# You should be able to compose a warble via a popup modal that is available on every page via the navigation bar button.
+# DRY Up the Templates
+# There’s a lot of repetition in this app!
+
+# Here are some ideas to clean up repetition:
+
+# Learn about the {% include %} statement in Jinja and use this to not have the forms be so repetitive.
+# Learn about the {% macro %} and {% import %} statements in Jinja; you can use these to be even more clever, and get rid of a lot of repetition in the user detail, followers, followed_user pages, and more.
+# DRY Up the Authorization
+# Advanced but interesting
+
+# In many routes, there are a few lines that check for is-a-user-logged-in. You could solve this by writing your own “decorator”, like “@app.route”, but that checks if the g.user object is not null and, if not, flashes and redirects.
+
+# You’ll need to do some searching and reading about Python decorators to do this.
+
+# DRY Up the URLs
+# Throughout the app, there are many, many places where URLs for the app are hardcoded throughout – consider the number of places that refer to URLs like /users/[user-id].
+
+# Flask has a nice feature, url_for(), which can produce the correct URL when given a view function name. This allows you to not use the URLs directly in other routes/templates, and makes it easier in the future if you even needed to move URLs around (say, is /users/[user-id] needed to change to /users/detail/[user-id].
+
+# Learn about this feature and use it throughout the site.
+
+# Optimize Queries
+# In some places, Warbler may be making far more queries than it needs: the homepage can use more than 75 queries!
+
+# Using the Flask-DebugToolbar, audit query usage and fix some of the worst offenders.
+
+# Make a Change Password Form
+# Make a form with three fields:
+
+# current password
+# new password
+# new password again, for confirmation
+# If the user is logged in and they provide the right password and their new passwords match, change their password.
+
+# Hint: do this by making a new method on the User class, rather than hard-coding stuff about password hashing in the view function.
+
+# Allow “Private” Accounts
+# Add a feature that allows a user to make their account “private”. A private account should normally only the profile page without messages.
+
+# You can follow a private account — but that user will need to approve your follow. At the point you are successfully following a private account, you should then be able to see their messages.
+
+# Note: this will require some schema changes and thoughtful design. Can you do this in a way that doesn’t sprinkle (even more) if conditions around? Can you add any useful functions on the User or Message classes?
+
+# Add Admin Users
+# Add a feature for “admin users” — these are users that have a new field on their model set to true.
+
+# Admin users can:
+
+# delete any user’s messages
+# delete any user
+# edit a user profile; when an admin user edits a profile, they should be able to see and set the “admin” field to make another user an admin
+# User Blocking
+# Add a feature where users can block other users:
+
+# when viewing a user page, there should be a block/unblock button
+# blocked users view the blocker in any way
+# Direct Messages
+# Add a feature of “direct messages” — users being able to send private messages to another user, visible only to that user.
+
+# There are lots of possibilities on how far you want to take this one.
